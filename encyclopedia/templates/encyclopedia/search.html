@@ -8,7 +8,7 @@
 
     <h1>You searched for {{ q }}</h1>
     {% for item in myitems %}
-        <a href="/wiki/{{ item.name }}">{{ item.name }}</a><br/>
+        <a href="/wiki/{{ item.title }}">{{ item.title }}</a><br/>
     {% endfor %}
 
 {% endblock %}

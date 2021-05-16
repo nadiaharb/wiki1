@@ -1,9 +1,16 @@
-from django import forms
 
+from django import forms
+from .models import Items
+from django.db import  models
 
 class CreateNewPage(forms.Form):
-    title = forms.CharField(label="Title", max_length=200)
-    description = forms.CharField(label='Description', max_length=10000)
-class EditPage(forms.Form):
+    Model=Items
+    title = forms.CharField(label="Title", max_length=200, widget=forms.TextInput(attrs={'class':'form-control-sm'}))
+    description = forms.CharField(
+        label='Description', max_length=1000,
+        widget=forms.TextInput(attrs={'class':'form-control-lg'}))
 
-    description = forms.CharField(label='Description', max_length=10000)
+class EditPage(forms.Form):
+    model=Items
+    template_name='edit.html'
+    fields=['title','description']
