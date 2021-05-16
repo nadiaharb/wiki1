@@ -5,9 +5,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 import markdown2
 from django.urls import reverse
 
-from . import util
+from . import util, forms
 from .models import Items
 from .forms import CreateNewPage, EditPage
+from django import forms
 
 def index(request):
 
@@ -26,7 +27,7 @@ def entry(request, title):
             'display':display,
         })
     else:
-      return HttpResponse('Ooops! The page not found')
+        return render(request, 'encyclopedia/notfound.html' )
 
 
 
@@ -34,22 +35,32 @@ def entry(request, title):
 def search(request):
     if request.method=="POST":
        q=request.POST['q']
-       if q in util.list_entries():
-           page=util.get_entry(q)
-           display = markdown2.markdown(page)
-           return render(request, 'encyclopedia/entry.html', {
-             'q':q,
-             'display':display
-           })
+       allitems = Items.objects.filter(title__exact=q)
+       myitems = Items.objects.filter(title__contains=q)
+       if allitems is not None:
+
+           for i in util.list_entries():
+               if i.upper() == q.upper():
+                   page = util.get_entry(i)
+                   display = markdown2.markdown(page)
+                   return render(request, 'encyclopedia/entry.html', {
+                       'i': q,
+                       'display': display
+                   })
+       if len(allitems) == 0 and len(myitems)>0:
+
+
+                   return render(request, 'encyclopedia/search.html', {
+                     'q': q,
+                     'myitems':myitems,
+
+                   })
        else:
-           myitems=Items.objects.filter(title__contains=q)
+
+                   return render(request, 'encyclopedia/notfound.html')
 
 
-           return render(request, 'encyclopedia/search.html', {
-               'q': q,
-               'myitems':myitems,
 
-           })
 
     else:
        return render(request, 'encyclopedia/search.html', {
@@ -66,12 +77,12 @@ def create(request):
 
             if title not in util.list_entries():
                util.save_entry(title, content)
-               Items.objects.create(title=title,myfile=util.get_entry(title))
+               Items.objects.create(title=title,myfile=util.get_entry(title),description=content)
 
 
                return HttpResponseRedirect(reverse('entry', kwargs={'title':title}))
             else:
-                return HttpResponse('PAGE EXIST')
+                return HttpResponse('<h1>SORRY, THE PAGE WITH THIS TITLE ALREADY EXIST</h1>')
 
     else:
         form = CreateNewPage()
@@ -81,20 +92,18 @@ def create(request):
 
 
 def edit(request,title):
-    page = util.get_entry(title)
-    display = markdown2.markdown(page)
+    item=Items.objects.get(title=title)
+    form=CreateNewPage(instance=item)
+    if request.method=='POST':
+        form=CreateNewPage(request.POST, instance=item)
 
-
-
-    form=CreateNewPage()
-    form.fields['title'].initial=title
-    form.fields['description'].initial=page
+        if form.is_valid():
+            form.save()
+            return redirect('/')
 
     return render(request, 'encyclopedia/edit.html', {
-        'title': title,
-        'display': display,
-        'form':form
-    })
+           'form':form
+        })
 
 def random(request):
     entries=util.list_entries()

@@ -5,11 +5,11 @@
 {% endblock %}
 
 {% block body %}
-<h1></h1>
-    <form method="post" >
+<h1>You can edit description here</h1>
+    <form method="POST" action="">
     {% csrf_token %}
       {{ form.as_p }}
-    <input type="submit"value="edit">
+    <input type="submit"   name="Submit" value="Edit">
     </form>
 
 {% endblock %}
