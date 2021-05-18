@@ -3,16 +3,17 @@
 {% block title %}
    New Page
 {% endblock %}
+
 {% if edit %}
 {% endif %}
 
 {% block body %}
 <h1>You Can Create New Page Here</h1>
-    <div style="text-align: center">
-    <form method="post" action="{% url 'create' %}" name="q" >
+    <div>
+    <form method="post" action="{% url 'create' %}" name="q" style="width: 75%" >
     {% csrf_token %}
       {{ form.as_p }}
-    <button type="submit" name="save">Create Page</button>
+    <button type="submit" class="btn btn-primary" name="save">Create Page</button>
     </form>
     </div>
 {% endblock %}

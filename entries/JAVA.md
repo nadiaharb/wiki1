@@ -1,0 +1,2 @@
+#JAVA
+Java is a high-level programming language developed by Sun Microsystems. This means Java source code may produce errors or "exceptions" more easily than other languages, but it also limits other types of errors that may be caused by undefined variables or unassigned types.

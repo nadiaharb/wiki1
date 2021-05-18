@@ -11,6 +11,12 @@ class CreateNewPage(ModelForm):
         fields='__all__'
 
 
+        widgets= {
+            'title':forms.TextInput(attrs={'class':"form-control", 'placeholder':'Type the title here...'}),
+            'description': forms.Textarea(attrs={'class':"form-control", 'placeholder':'Type the description here...'})
+        }
+
+
 
 
 class EditPage(forms.Form):

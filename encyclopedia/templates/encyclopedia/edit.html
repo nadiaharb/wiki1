@@ -6,10 +6,11 @@
 
 {% block body %}
 <h1>You can edit description here</h1>
-    <form method="POST" action="">
+    <h2>{{ title }}</h2>
+    <form method="POST" action="" style="width: 75%" >
     {% csrf_token %}
       {{ form.as_p }}
-    <input type="submit"   name="Submit" value="Edit">
+    <input type="submit"  class="btn btn-primary" name="Submit" value="Edit">
     </form>
 
 {% endblock %}

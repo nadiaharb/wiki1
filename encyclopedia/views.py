@@ -1,8 +1,10 @@
 import secrets
+
+import markdown2
 from django.views.generic import UpdateView
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
-import markdown2
+from markdown2 import Markdown
 from django.urls import reverse
 
 from . import util, forms
@@ -20,6 +22,7 @@ def index(request):
 
 def entry(request, title):
     page=util.get_entry(title)
+
     if page:
         display=markdown2.markdown(page)
         return render(request, 'encyclopedia/entry.html',{
@@ -37,6 +40,12 @@ def search(request):
        q=request.POST['q']
        allitems = Items.objects.filter(title__exact=q)
        myitems = Items.objects.filter(title__contains=q)
+       if len(q)<1:
+           return render(request, "encyclopedia/index.html", {
+               "entries": util.list_entries(),
+
+           })
+
        if allitems is not None:
 
            for i in util.list_entries():
@@ -63,7 +72,9 @@ def search(request):
 
 
     else:
+       massage=("Search smth")
        return render(request, 'encyclopedia/search.html', {
+           'massage':massage
         })
 
 def create(request):
@@ -73,6 +84,7 @@ def create(request):
 
             title = form.cleaned_data['title']
             content = form.cleaned_data['description']
+
 
 
             if title not in util.list_entries():
@@ -94,15 +106,26 @@ def create(request):
 def edit(request,title):
     item=Items.objects.get(title=title)
     form=CreateNewPage(instance=item)
+    form.fields['title'].widget=forms.HiddenInput()
     if request.method=='POST':
         form=CreateNewPage(request.POST, instance=item)
 
+
         if form.is_valid():
             form.save()
-            return redirect('/')
+            title = form.cleaned_data['title']
+            content = form.cleaned_data['description']
+            util.save_entry(title, content)
+            page = util.get_entry(title)
+            display = markdown2.markdown(page)
+            return render(request, 'encyclopedia/entry.html', {
+                'title': title,
+                'display': display,
+            })
 
     return render(request, 'encyclopedia/edit.html', {
-           'form':form
+           'form':form,
+           'title':title
         })
 
 def random(request):
